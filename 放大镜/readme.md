@@ -1,34 +1,118 @@
-# 拼图游戏图片放大镜效果实现思路
+# 放大镜功能实现思路
 
-1. **HTML 结构:**
-   - 在 `index.html` 文件中，创建两个主要的 `div` 元素：
-     - 用于包含 **小图** (`small`)，放置 `<img>` 标签显示小图。
-     - 用于显示 **大图** (`big`)，作为放大镜效果容器，也包含一个 `<img>` 标签显示大图。
+## 1. 简介
 
-2. **CSS 样式:**
-   - 使用 CSS 布局和样式化 `div`。
-     - `small` 和 `big` 并排排列 (Flexbox 或 Grid)。
-     - `big` 初始状态隐藏 (`display: none` 或 `opacity: 0` + `pointer-events: none`)。
-     - 设置 `big` 尺寸，容纳放大后的大图。
-     - 设置 `big` 的 `overflow: hidden` 实现“窗口”效果。
-     - 大图在 `big` 中定位，通过 JavaScript 动态调整 `background-position` 或 `transform: translate()` 显示细节。
+本文档描述了放大镜功能的实现思路，该功能通过在小图上创建一个可移动的“放大镜”区域，并在大图区域显示放大后的图像，从而实现放大镜效果。
 
-3. **JavaScript 交互:**
-   - JavaScript 实现鼠标交互和放大效果。
-     - 获取 `small` 和 `big` DOM 元素。
-     - `small` 添加 `mousemove` 监听器。
-     - `mousemove` 处理函数：
-       - 获取鼠标在 `small` 内部的相对位置 (x, y)。
-       - 计算大图应显示的区域 (根据小图和大图尺寸比例)。
-       - 更新 `big` 中大图的 `background-position` 或 `transform: translate()`，显示放大区域。
-       - 显示 `big` (如果初始隐藏)。
-     - `small` 添加 `mouseout` 监听器。
-     - `mouseout` 处理函数：
-       - 隐藏 `big`，恢复初始状态。
+## 2. HTML 结构
 
-4. **图片资源:**
-   - `img/` 文件夹下有 **小图** 和 **大图** 图片文件。HTML 中正确引用路径。
+```html
+<div class="small">
+    <div class="move"></div>
+</div>
+<div class="big"></div>
+```
 
-**总结:**
+*   `.small`：显示小图，包含可移动的 `.move` div。
+*   `.move`：小图上的可移动区域，用于模拟放大镜。
+*   `.big`：显示放大后的图像。
 
-关键在于 CSS 布局和样式化容器，JavaScript 监听鼠标事件，动态计算和更新大图显示位置，实现放大镜效果。
+## 3. JavaScript 代码实现
+
+### 3.1 初始化
+
+使用立即执行函数 (IIFE) 创建独立作用域，并定义 `config` 对象存储配置信息。
+
+```javascript
+(function () {
+    //配置
+    var config = {
+        smallBg: "images/mouse.jpg", // 小图背景路径
+        bigBg: "images/mouseBigSize.jpg", //大图背景路径
+        divBig: document.querySelector(".big"), //大图div dom元素
+        divSmall: document.querySelector(".small"), //小图div dom元素
+        divMove: document.querySelector(".small .move"), //可移动的div
+        smallImgSize: { //小图尺寸
+            width: 350,
+            height: 350
+        },
+        divBigSize: { //大的div的尺寸
+            width: 540,
+            height: 540
+        },
+        bigImgSize: { //大图尺寸
+            width: 800,
+            height: 800
+        }
+    };
+    //计算可移动的div的宽高
+    config.moveSize = {
+        width: config.divBigSize.width / config.bigImgSize.width * config.smallImgSize.width,
+        height: config.divBigSize.height / config.bigImgSize.height * config.smallImgSize.height,
+    };
+
+    initDivBg();
+    initMoveDiv();
+    initDivSmallEvent();
+```
+
+### 3.2 初始化 div 背景
+
+`initDivBg()` 函数用于设置小图和大图的背景图片。
+
+```javascript
+    function initDivBg() {
+        config.divSmall.style.background = `url("${config.smallBg}") no-repeat left top/100% 100%`;
+        config.divBig.style.background = `url("${config.bigBg}") no-repeat`;
+    }
+```
+
+### 3.3 初始化可移动的 div
+
+`initMoveDiv()` 函数用于设置可移动的 `.move` div 的尺寸。
+
+```javascript
+    function initMoveDiv() {
+        config.divMove.style.width = config.moveSize.width + "px";
+        config.divMove.style.height = config.moveSize.height + "px";
+    }
+```
+
+### 3.4 初始化小图 div 的鼠标事件
+
+`initDivSmallEvent()` 函数用于处理小图 div 的鼠标事件，实现放大镜效果。
+
+```javascript
+    function initDivSmallEvent() {
+        config.divSmall.onmouseenter = function () {
+            config.divMove.style.display = "block";
+            config.divBig.style.display = "block";
+        }
+        config.divSmall.onmouseleave = function () {
+            config.divMove.style.display = "none";
+            config.divBig.style.display = "none";
+        }
+
+        config.divSmall.onmousemove = function (e) {
+            var offset = getOffset(e);
+            setPosition(offset);
+            setBigBgPosition();
+        }
+```
+
+*   `onmouseenter`：显示 `.move` div 和 `.big` div。
+*   `onmouseleave`：隐藏 `.move` div 和 `.big` div。
+*   `onmousemove`：
+    *   `getOffset(e)`：获取鼠标在小图 div 中的坐标。
+    *   `setPosition(offset)`：设置 `.move` div 的位置。
+    *   `setBigBgPosition()`：设置大图的背景位置。
+
+### 3.5 其他辅助函数
+
+*   `getOffset(e)`：获取鼠标在小图 div 中的坐标。
+*   `setPosition(offset)`：设置 `.move` div 的位置，并确保不超出小图范围。
+*   `setBigBgPosition()`：设置大图的背景位置，实现放大效果。
+
+## 4. 总结
+
+该放大镜功能通过 JavaScript 动态控制 DOM 元素的显示和位置，实现了简单而有效的放大镜效果。
