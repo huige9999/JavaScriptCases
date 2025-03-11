@@ -1,12 +1,24 @@
-// 获取小图和大图容器
-const smallImageContainer = document.querySelector('.small');
-const largeImageContainer = document.querySelector('.big');
-
-// 输出获取的元素以验证
-console.log('小图容器:', smallImageContainer);
-console.log('大图容器:', largeImageContainer);
-
-// 添加mousemove事件监听器
-smallImageContainer.addEventListener('mousemove', (event) => {
-  // 在这里实现放大镜效果
-});
+(function () {
+  const config = {
+    smallBg: "images/mouse.jpg", // 小图背景路径
+    bigBg: "images/mouseBigSize.jpg", //大图背景路径
+    divBig: document.querySelector(".big"), //大图div dom元素
+    divSmall: document.querySelector(".small"), //小图div dom元素
+    divMove: document.querySelector(".small .move"), //可移动的div
+    smallImgSize: {
+      //小图尺寸
+      width: 350,
+      height: 350,
+    },
+    divBigSize: {
+      //大的div的尺寸
+      width: 540,
+      height: 540,
+    },
+    bigImgSize: {
+      //大图尺寸
+      width: 800,
+      height: 800,
+    },
+  };
+})();
