@@ -6,3 +6,6 @@ JavaScript实现的一些案例、效果等
 
 ## 许愿墙
 思路：https://www.yuque.com/wangyuanhui-fazpg/wovks9/skloddgc1qqgugv9
+
+## 放大镜
+思路：https://www.yuque.com/wangyuanhui-fazpg/wovks9/wk17qff2ynvy8s4p
