@@ -110,7 +110,6 @@ var bird = {
       top = 0;
     } else if (top > land.top - this.height) {
       top = land.top - this.height;
-      // this.jump();
     }
     this.top = top;
     this.show();
